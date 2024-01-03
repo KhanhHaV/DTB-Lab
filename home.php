@@ -3,19 +3,8 @@
     include("header.inc");
     include("footer.inc");
     include("galleryItem.inc");
-   
-    $serverName = "AFKAJHFJKAHDFJA\SQLEXPRESS01"; 
-    $connectionOptions = array(
-        "Database" => "master", 
-    );
+    include("connect.inc");
 
-    $conn = sqlsrv_connect($serverName, $connectionOptions);
-
-    if ($conn === false) {
-        die(print_r(sqlsrv_errors(), true)); // Handle connection errors
-    } else {
-        echo "Connected to SQL Server successfully";
-    }
 ?>
 
 <!DOCTYPE html>

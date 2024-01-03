@@ -1,6 +1,8 @@
 <?php
     include("head.inc");
     include("header.inc");
+    include("connect.inc");
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

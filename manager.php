@@ -1,27 +1,12 @@
 <?php
-    $serverName = "AFKAJHFJKAHDFJA\SQLEXPRESS01"; 
-    $connectionOptions = array(
-        "Database" => "master", 
-    );
-
-    $conn = sqlsrv_connect($serverName, $connectionOptions);
-
-    if ($conn === false) {
-        die(print_r(sqlsrv_errors(), true)); // Handle connection errors
-    } else {
-        echo "Connected to SQL Server successfully";
-    }
-?>
-<?php
     include("head.inc");
     include("header.inc");
     include("footer.inc");
     if(!$_SESSION["user"] || $_SESSION["user"] == null) {
         header("Location: index.php");
     }
-    require_once("settings.php");
-   
-
+    include("connect.inc");
+    
     function cartItem($isHistory,$userId, $productId, $name, $price, $color, $version, $quantity, $image, $imageType) {
         echo "
         <div class='cart-item'>

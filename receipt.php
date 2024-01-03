@@ -2,6 +2,8 @@
     include("head.inc");
     include("header.inc");
     include("footer.inc");
+    include("connect.inc");
+
 
     function cartItem($isHistory,$userId, $productId, $name, $price, $color, $version, $quantity, $image, $imageType) {
         echo "
@@ -21,8 +23,7 @@
         ";
     }
 
-    require_once("settings.php");
-    $conn = @mysqli_connect($host, $user, $password, $sql_db);
+   
     if(!$conn) {
         header("Location: home.php");
     } else {

@@ -2,11 +2,11 @@
     include("head.inc");
     include("header.inc");
     include("footer.inc");
+    include("connect.inc");
+
     // if(!$_SESSION["user"] || $_SESSION["user"] == null) {
     //     header("Location: index.php");
     // }
-    require_once("settings.php");
-    $conn = @mysqli_connect($host, $user, $password, $sql_db);
     if(!$conn) {
         echo "<p>Sth went wrong!:(</P>";
     } else {

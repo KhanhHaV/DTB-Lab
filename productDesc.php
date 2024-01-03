@@ -1,23 +1,9 @@
 <?php
-    $serverName = "AFKAJHFJKAHDFJA\SQLEXPRESS01"; 
-    $connectionOptions = array(
-        "Database" => "master", 
-    );
-
-    $conn = sqlsrv_connect($serverName, $connectionOptions);
-
-    if ($conn === false) {
-        die(print_r(sqlsrv_errors(), true)); // Handle connection errors
-    } else {
-        echo "Connected to SQL Server successfully";
-    }
-?>
-
-<?php
     include("head.inc");
     include("header.inc");
     include("footer.inc");
-    require_once("settings.php");
+    include("connect.inc");
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

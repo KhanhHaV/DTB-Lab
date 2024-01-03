@@ -4,6 +4,8 @@
     if(array_key_exists("user",$_SESSION) && $_SESSION["user"] != null) {
         header("Location: home.php");
     }
+    include("connect.inc");
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
