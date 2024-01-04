@@ -7,35 +7,43 @@
         $editingProduct = $_POST["editting-product"];
         if(isset($_POST["delete"])) {
             $query = "DELETE FROM products WHERE product_id = $editingProduct;";
-            $result = mysqli_query($conn,$query);
+            $result = sqlsrv_query($conn,$query);
             header("Location: manager.php?page=1");
         } else {
             $pname = "";
             $pdesc = "";
             $pprice = "";
             $pimage = "";
+            $pstock = "";
+            $discount = "";
+
             if(isset($_POST["pname"])) $pname = htmlspecialchars(trim($_POST["pname"]));
             if(isset($_POST["pdesc"])) $pdesc = htmlspecialchars(trim($_POST["pdesc"]));
             if(isset($_POST["pprice"])) $pprice = htmlspecialchars(trim($_POST["pprice"]));
+            if(isset($_POST["discount"])) $discount = htmlspecialchars(trim($_POST["discount"]));
+            if(isset($_POST["pstock"])) $pstock = htmlspecialchars(trim($_POST["pstock"]));
+
 
             // process image file
-            if(isset($_FILES["pimage"])) 
+            if(isset($_POST["pimage"])) 
             $pimageName = basename($_FILES["pimage"]["name"]);
-            if(isset($_FILES["pimage"])) 
+            if(isset($_POST["pimage"])) 
             $pimageType = pathinfo($pimageName, PATHINFO_EXTENSION);
     
             $allowTypes = ['jpg','png','jpeg','gif'];
     
-            if(
-                isset($_FILES["pimage"]) && 
-                in_array($pimageType, $allowTypes)) {
-                $pimage = $_FILES["pimage"]["tmp_name"];
-                $pimageContent = addslashes(file_get_contents($pimage));
+            if(     in_array($pimageType, $allowTypes)) {
+                    $pimage = $_FILES["pimage"]["name"];
+                    $pimage_tmp = $_FILES["pimage"]["tmp_name"];
+                    $folder = 'imageproduct/' . $pimage;
+                    
+                if (move_uploaded_file($pimage_tmp, $folder)) {
+                    echo "<h3>  Image uploaded successfully!</h3>";}
             }
     
             $errMsg = 0;
     
-            if($pname == "" && $pdesc == "" && $pprice == "" && $pimage == "") {
+            if($pname == "" && $pdesc == "" && $pprice == "" && $folder == "" && $pstock == ""&& $discount == "") {
                 $errMsg += 1;
             }
     
@@ -54,12 +62,18 @@
                 if($pprice != "") {
                     $query .= "pprice = '$pprice', ";
                 }
-                if($pimage != "") {
-                    $query .= "pimage = '$pimageContent',pimagetype = '$pimageType', ";
+                if($pstock != "") {
+                    $query .= "pstock = '$pstock', ";
+                }
+                if($discount != "") {
+                    $query .= "discount = '$discount', ";
+                }
+                if($folder != "") {
+                    $query .= "pimage = '$folder', ";
                 }
                 $query = trim($query, ", ");
                 $query .= " WHERE product_id = $editingProduct;";
-                $result = mysqli_multi_query($conn,$query);
+                $result = sqlsrv_query($conn,$query);
                 header("Location: manager.php?page=1");
             }
         }

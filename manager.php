@@ -10,7 +10,7 @@
     function cartItem($isHistory,$userId, $productId, $name, $price, $color, $version, $quantity, $image, $imageType) {
         echo "
         <div class='cart-item'>
-            <img src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+        <img src='$image' alt=''/>
             <div class='cart-item-info'>
                 <a class='link-to-product' href='productDesc.php?productId=$productId'><h3>$name</h3></a>
                 <p class='cart-item-price'><strong>Price: </strong><span class='price'>$$price</span></p>
@@ -22,7 +22,7 @@
                     if(!$isHistory) echo "<a href='incAndDec.php?userId=$userId&productId=$productId&action=inc'><div>+</div></a>";
                 echo "</div>
             </div>
-            <img class='item-bg' src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+            <img class='item-bg' src='$image' alt=''/>
         </div>
         ";
     }
@@ -279,8 +279,16 @@ function editProduct($conn) {
                 <input type='number' name='pprice' id='pprice'/>
             </div>
             <div>
-                <label for='pimage'>Product image: </label>
-                <input type='file' name='pimage' id='pimage' accept='image/png, image/gif, image/jpeg'/>
+                <label for='pimage'>Product image </label>
+                <input type='file' name='pimage' id='pimage' accept='image/png, image/gif, image/jpeg'  required/>
+            </div>
+            <div>
+                <label for='discount'>Product discount </label>
+                <input type='number' name='discount' id='discount' required>
+            </div>
+            <div>
+            <label for='pstock'>Product stock </label>
+            <input type='number' name='pstock' id='pstock' required>
             </div>
             <div id='edit-btns'>
                 <input type='submit' id='update-btn' class='shop-btn' value='Edit'/>

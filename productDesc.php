@@ -3,7 +3,6 @@
     include("header.inc");
     include("footer.inc");
     include("connect.inc");
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +26,7 @@
                 $name = $product["pname"];
                 $desc = $product["pdesc"];
                 $price = $product["pprice"];
-                $image = base64_encode($product["pimage"]);
+                $image = $product["pimage"];
                 $imageType = $product["pimagetype"];
                 if($_SESSION["user"] || $_SESSION["user"] != null) {
                     $userId = $_SESSION["user"]["user_id"];
@@ -44,10 +43,10 @@
                     } else {
                         echo "
                         
-                    <div id='item$id' class='product'>
-                    <img class='product-background' src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+                    <div id='item $id' class='product'>
+                    <img class='product-background' <img src='$image' alt=''/>/>
                     <div class='details'>
-                        <aside><img src='data:image/$imageType;charset=utf8;base64,$image' alt=''/></aside>
+                        <aside><img src='$image' alt=''/></aside>
                         <div class='description'>
                             <h3>$name</h3>
                             <p class='price'>$$price</p>
