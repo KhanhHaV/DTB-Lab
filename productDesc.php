@@ -3,7 +3,9 @@
     include("header.inc");
     include("footer.inc");
     include("connect.inc");
+    
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <?php
@@ -28,7 +30,8 @@
                 $price = $product["pprice"];
                 $image = $product["pimage"];
                 $imageType = $product["pimagetype"];
-                if($_SESSION["user"] || $_SESSION["user"] != null) {
+
+                if(isset($_SESSION["user"]) && $_SESSION["user"] != null) {
                     $userId = $_SESSION["user"]["user_id"];
                 }
             }
@@ -87,7 +90,9 @@
                             </div>
                             <form method='POST' action='addToCart.php?
                             ";
-                                if($_SESSION["user"] || $_SESSION["user"] != null) echo"userId=$userId";
+                            if(isset($_SESSION["user"]) && $_SESSION["user"] != null) {
+                                $userId = $_SESSION["user"]["user_id"];
+                            }
                             echo "
                             &productId=$id'>
                                 <div  class='other-group box-group'>
@@ -120,8 +125,8 @@
                                     <label for='quantity'><strong>Quantity: </strong></label>
                                 </div>
                                 ";
-                                if($_SESSION["user"] || $_SESSION["user"] != null) {
-                                    echo"<input type='submit' class='shop-btn' value='Add to Cart'/>";
+                                if(isset($_SESSION["user"]) && $_SESSION["user"] != null) {
+                                    $userId = $_SESSION["user"]["user_id"];
                                 } else {
                                     echo"<a href='index.php' class='shop-btn'>Login to continue</a>";
                                 }
