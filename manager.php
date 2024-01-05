@@ -80,6 +80,9 @@
         } else {
             $query = "SELECT * FROM cart JOIN products ON cart.product_id = products.product_id WHERE user_id = $userId;";
             $result = sqlsrv_query($conn, $query);
+            if ($result === false) {
+                die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
+            }
             // $cart = mysqli_fetch_array($result);
             // $itemCount = count($cart);
             $cart = [];
