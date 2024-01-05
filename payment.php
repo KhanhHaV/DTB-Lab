@@ -14,7 +14,7 @@
         function cartItem($isHistory,$userId, $productId, $name, $price, $color, $version, $quantity, $image, $imageType) {
             echo "
             <div class='cart-item'>
-                <img src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+            <img src='$image' alt=''/>
                 <div class='cart-item-info'>
                     <a class='link-to-product' href='productDesc.php?productId=$productId'><h3>$name</h3></a>
                     <p class='cart-item-price'><strong>Price: </strong><span class='price'>$$price</span></p>
@@ -34,10 +34,10 @@
             } else {
                 if(isset($_GET["userId"])) {
                     $query = "SELECT * FROM cart JOIN products ON cart.product_id = products.product_id WHERE user_id = $userId;";
-                    $result = mysqli_query($conn, $query);
+                    $result = sqlsrv_query($conn, $query);
                     $cart_array = [];
                     $itemCount = 0;
-                    while($cart = mysqli_fetch_assoc($result)) {
+                    while($cart = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
                         array_push($cart_array, $cart);
                         $itemCount += $cart["quantity"];
                     }
@@ -66,7 +66,7 @@
                                 cartItem(true,$_SESSION["user"]["user_id"],$cart_array[$i]["product_id"], 
                                             $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$cart_array[$i]["color"],
                                             $cart_array[$i]["version"],$cart_array[$i]["quantity"],
-                                            base64_encode($cart_array[$i]["pimage"]),$cart_array[$i]["pimagetype"]);
+                                           $cart_array[$i]["pimage"],$cart_array[$i]["pimagetype"]);
                                 $total += $cart_array[$i]["pprice"];
                                 if(strpos($cart_array[$i]["version"],'fea1') !== false) {
                                     $total += 50;
@@ -106,10 +106,10 @@
                             $fea3 = $_POST["fea3"];
                         }
                         $query = "SELECT * FROM products WHERE product_id = $product";
-                        $result = mysqli_query($conn, $query);
+                        $result = sqlsrv_query($conn, $query);
                         $cart_array = [];
                         $itemCount = 0;
-                        $cart = mysqli_fetch_assoc($result);
+                        $cart = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
                         array_push($cart_array, $cart);
                         $itemCount += $quantity;
                         echo "
@@ -162,8 +162,8 @@
             } else {
                 if(isset($_GET["userId"])) {
                     $query = "SELECT fname, lname, email, address, phone FROM users WHERE user_id = $userId;";
-                    $result = mysqli_query($conn, $query);
-                    $row = mysqli_fetch_array($result);
+                    $result = sqlsrv_query($conn, $query);
+                    $row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
                     $fname = $row["fname"];
                     $lname = $row["lname"];
                     $email = $row["email"];

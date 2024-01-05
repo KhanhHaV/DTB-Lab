@@ -87,7 +87,7 @@
             // $itemCount = count($cart);
             $cart = [];
             $itemCount = 0;
-            while($row = sqlsrv_fetch_assoc($result,SQLSRV_FETCH_ASSOC)) {
+            while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
                 array_push($cart, $row);
                 $itemCount += $row["quantity"];
             }
@@ -326,7 +326,7 @@ function orderRequest($conn) {
                     <select id='product' class='order half' name='product'>
                         <option value=''>Orders contain product</option>";
                         // select all products fromm database
-                                $query = "SELECT * FROM products ORDER BY pdate DESC";
+                                $query = "SELECT * FROM products ORDER BY ";
                                 $result = sqlsrv_query($conn,$query);
                                 if ($result === false) {
                                     die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
@@ -449,10 +449,10 @@ function orderRequest($conn) {
                     echo "
                     <div class='avtNname'>
                         <div class='small-avt'>";
-                        if($avt["avatar"] != null && $avt["avatar_type"] != null) {
+                        if(isset($avt["avatar"]) && isset($avt["avatar_type"]) && $avt["avatar"] !== null && $avt["avatar_type"] !== null) {
                             $type = $avt["avatar_type"];
-                            $image = base64_encode($avt["avatar"]);
-                            echo "<img src='data:image/$type;charset=utf8;base64,$image' alt=''/>";
+                            $image = $avt["avatar"];
+                            echo "<img src='$image' alt=''/>";
                         } else {
                             echo "<img src='images/user/user.png' alt=''/>";
                         }
@@ -484,6 +484,9 @@ function orderRequest($conn) {
                             } else {
                                 $query = "SELECT * FROM order_products JOIN products ON order_products.product_id = products.product_id WHERE order_id = $orderId;";
                                 $itemResult = sqlsrv_query($conn, $query);
+                                if ($itemResult === false) {
+                                    die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
+                                }
                                 $total = 0;
                                 $i = 1;
                                 while($itemRow = sqlsrv_fetch_array($itemResult,SQLSRV_FETCH_ASSOC)) {
@@ -612,8 +615,8 @@ function doneRequest($conn) {
                         <div class='small-avt'>";
                         if($avt["avatar"] != null && $avt["avatar_type"] != null) {
                             $type = $avt["avatar_type"];
-                            $image = base64_encode($avt["avatar"]);
-                            echo "<img src='data:image/$type;charset=utf8;base64,$image' alt=''/>";
+                            $image = $avt["avatar"];
+                            echo "<img src='$image' alt=''/>";
                         } else {
                             echo "<img src='images/user/user.png' alt=''/>";
                         }
@@ -752,8 +755,8 @@ function doneRequest($conn) {
                                     $row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
                                     if($row["avatar"] != null && $row["avatar_type"] != null) {
                                         $type = $row["avatar_type"];
-                                        $image = base64_encode($row["avatar"]);
-                                        echo "<img src='data:image/$type;charset=utf8;base64,$image' alt=''/>";
+                                        $image = $row["avatar"];
+                                        echo "<img src='$image' alt=''/>";
                                     } else {
                                         echo "<img src='images/user/user.png' alt=''/>";
                                     }
