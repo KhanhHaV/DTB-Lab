@@ -3,6 +3,9 @@
     if(!$conn) {
         echo "<p>Oops! Something went wrong! :(</p>";
     } else {
+        if(!$_SESSION["user"] || $_SESSION["user"] == null) {
+            header("Location: index.php");
+        }
         $userId = htmlspecialchars(trim($_GET["userId"]));
         $productId = htmlspecialchars(trim($_GET["productId"]));
         $color = htmlspecialchars(trim($_POST["color"]));
@@ -19,7 +22,6 @@
             $fea3 = $_POST["fea3"];
         }
         
-
         $errMsg = 0;
 
         if($userId == "" || $productId == "" || $color == "" || ($fea1 == "" && $fea2 == ""  && $fea3 == "")) {
@@ -29,10 +31,12 @@
         if($errMsg != 0) {
             echo "<p>Oops! Something went wrong! :(</p>";
         } else {
-            $query = "CREATE TABLE IF NOT EXISTS cart (user_id INT, product_id INT, color VARCHAR(20), version VARCHAR(20), quantity INT, PRIMARY KEY(user_id, product_id));";
             sqlsrv_query($conn, $query);
             $query = "SELECT * FROM cart WHERE user_id = $userId AND product_id = $productId;";
             $result = sqlsrv_query($conn, $query);
+            if ($result === false) {
+                die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
+            }
             $row = sqlsrv_fetch_array($result);
             if( !$row || count($row) == 0) {
                 $query = "INSERT INTO cart (user_id, product_id, color, version, quantity) VALUES ($userId, $productId, '$color', '";

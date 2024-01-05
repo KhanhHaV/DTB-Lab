@@ -328,6 +328,9 @@ function orderRequest($conn) {
                         // select all products fromm database
                                 $query = "SELECT * FROM products ORDER BY pdate DESC";
                                 $result = sqlsrv_query($conn,$query);
+                                if ($result === false) {
+                                    die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
+                                }
                                 $options = [];
                                 while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
                                     array_push($options, $row);
@@ -412,7 +415,7 @@ function orderRequest($conn) {
                     $orderBy = "order_time ASC";
                     break;
             }
-        }
+        } else $orderBy = "order_time DESC";
         $query .= "ORDER BY $orderBy;";
         $result = sqlsrv_query($conn,$query);
         
