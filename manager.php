@@ -282,7 +282,7 @@ function editProduct($conn) {
             </div>
             <div>
                 <label for='pimage'>Product image </label>
-                <input type='file' name='pimage' id='pimage' accept='image/png, image/gif, image/jpeg'  required/>
+                <input type='file' name='pimage' id='pimage' accept='image/png, image/gif, image/jpeg'  />
             </div>
             <div>
                 <label for='discount'>Product discount </label>
@@ -412,6 +412,10 @@ function orderRequest($conn) {
         }
         $query .= "ORDER BY $orderBy;";
         $result = sqlsrv_query($conn,$query);
+        
+        if ($result === false) {
+            die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
+        }
         
         // display every order tab
         while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
@@ -571,6 +575,10 @@ function doneRequest($conn) {
         ";
         $query = "SELECT order_id, user_id, fname, lname, phone, email, street, town, state, post_code, pref_contact, order_status, order_time FROM orders WHERE order_status = 'ARCHIVED' ORDER BY order_time DESC;";
         $result = sqlsrv_query($conn,$query);
+        
+        if ($result === false) {
+            die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
+        }
         while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
             $orderId = $row["order_id"];
             $userId = $row["user_id"];
