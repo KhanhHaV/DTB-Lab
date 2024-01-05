@@ -46,7 +46,7 @@
                     $query .= '1';
                 }
                 $query .= ");";
-                $result = mysqli_query($conn,$query);
+                $result = sqlsrv_query($conn,$query);
             } else {
                 $query = "UPDATE cart SET quantity = quantity + 1 WHERE user_id = $userId AND product_id = $productId;";
                 $result = sqlsrv_query($conn,$query);

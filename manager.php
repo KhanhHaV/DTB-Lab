@@ -210,40 +210,42 @@
             ";
         }
     }
-function addProduct() {
-    echo"
-    <div class='tab products-tab'>
-        <h2>Add a Product</h2>
-        <form method='POST' action='addProduct.php' enctype='multipart/form-data'>
-            <div>
-                <label for='pname'>Product name </label>
-                <input type='text' name='pname' id='pname' required/>
-            </div>
-            <div>
-                <label for='pdesc'>Product description </label>
-                <textarea type='text' name='pdesc' id='pdesc' required></textarea>
-            </div>
-            <div>
-                <label for='pprice'>Product price : $</label>
-                <input type='number' name='pprice' id='pprice' required/>
-            </div>
-            <div>
-                <label for='pimage'>Product image </label>
-                <input type='file' name='pimage' id='pimage' accept='image/png, image/gif, image/jpeg'  required/>
-            </div>
-            <div>
-                <label for='discount'>Product discount </label>
-                <input type='number' name='discount' id='discount' required>
-            </div>
-            <div>
-            <label for='pstock'>Product stock </label>
-            <input type='number' name='pstock' id='pstock' required>
-            </div>
-            <input type='submit' id='update-btn' class='shop-btn' value='Add'/>
-        </form>
-    </div>
-    ";
-}
+
+
+    function addProduct() {
+        echo "
+        <div class='tab products-tab'>
+            <h2>Add a Product</h2>
+            <form method='POST' action='addProduct.php' enctype='multipart/form-data'>
+                <div>
+                    <label for='pname'>Product name </label>
+                    <input type='text' name='pname' id='pname' required/>
+                </div>
+                <div>
+                    <label for='pdesc'>Product description </label>
+                    <textarea type='text' name='pdesc' id='pdesc' required></textarea>
+                </div>
+                <div>
+                    <label for='pprice'>Product price : $</label>
+                    <input type='number' name='pprice' id='pprice' required/>
+                </div>
+                <div>
+                    <label for='pimage'>Product image </label>
+                    <input type='file' name='pimage' id='pimage' accept='image/png, image/gif, image/jpeg' required/>
+                </div>
+                <div>
+                    <label for='discount'>Product discount </label>
+                    <input type='number' min='0' max='100' name='discount' id='discount'>
+                </div>
+                <div>
+                    <label for='pstock'>Product stock </label>
+                    <input type='number' min='1' name='pstock' id='pstock' required>
+                </div>
+                
+                <input type='submit' id='update-btn' class='shop-btn' value='Add'/>
+            </form>
+        </div>";
+    }
 function editProduct($conn) {
     echo "
     <div class='tab products-tab'>
@@ -284,11 +286,11 @@ function editProduct($conn) {
             </div>
             <div>
                 <label for='discount'>Product discount </label>
-                <input type='number' name='discount' id='discount' required>
+                <input type='number' min='0' max='100' name='discount' id='discount' >
             </div>
             <div>
             <label for='pstock'>Product stock </label>
-            <input type='number' name='pstock' id='pstock' required>
+            <input type='number' min = '1' name='pstock' id='pstock' >
             </div>
             <div id='edit-btns'>
                 <input type='submit' id='update-btn' class='shop-btn' value='Edit'/>

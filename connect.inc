@@ -1,7 +1,7 @@
 <?php
     $serverName = "AFKAJHFJKAHDFJA\SQLEXPRESS01"; 
     $connectionOptions = array(
-        "Database" => "master", 
+        "Database" => "KNOWO", 
     );
 
     $conn = sqlsrv_connect($serverName, $connectionOptions);

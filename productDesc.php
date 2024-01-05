@@ -47,7 +47,7 @@
                         echo "
                         
                     <div id='item $id' class='product'>
-                    <img class='product-background' <img src='$image' alt=''/>/>
+                    <img class='product-background' <img src='$image' alt=''/>
                     <div class='details'>
                         <aside><img src='$image' alt=''/></aside>
                         <div class='description'>
@@ -126,7 +126,8 @@
                                 </div>
                                 ";
                                 if(isset($_SESSION["user"]) && $_SESSION["user"] != null) {
-                                    $userId = $_SESSION["user"]["user_id"];
+                                    echo"<input type='submit' class='shop-btn' value='Add to Cart'/>";
+
                                 } else {
                                     echo"<a href='index.php' class='shop-btn'>Login to continue</a>";
                                 }
