@@ -21,6 +21,7 @@
             if(!$conn) {
                 header("Location: products.php");
             } else {
+                
                 $query = "SELECT * FROM products WHERE product_id = $productId;";
                 $result = sqlsrv_query($conn,$query);
                 $product = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
@@ -28,6 +29,7 @@
                 $name = $product["pname"];
                 $desc = $product["pdesc"];
                 $price = $product["pprice"];
+                $pstock = $product["pstock"];
                 $image = $product["pimage"];
                 $imageType = $product["pimagetype"];
 
@@ -53,6 +55,7 @@
                         <div class='description'>
                             <h3>$name</h3>
                             <p class='price'>$$price</p>
+                            <p class='pstock'> <strong>AVAILABLE:</strong> $pstock</p>
                             <p>$desc</p>
                             <table class='info-table'>
                                 <tr>
@@ -90,9 +93,7 @@
                             </div>
                             <form method='POST' action='addToCart.php?
                             ";
-                            if(isset($_SESSION["user"]) && $_SESSION["user"] != null) {
-                                $userId = $_SESSION["user"]["user_id"];
-                            }
+                            if(isset($_SESSION["user"]) && $_SESSION["user"] != null) $userId = $_SESSION["user"]["user_id"];
                             echo "
                             &productId=$id'>
                                 <div  class='other-group box-group'>

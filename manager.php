@@ -104,7 +104,7 @@
                 while($i < count($cart)) {
                     echo "
                     <li>";
-                    cartItem(false,$_SESSION["user"]["user_id"],$cart[$i]["product_id"], $cart[$i]["pname"],$cart[$i]["pprice"],$cart[$i]["color"],$cart[$i]["version"],$cart[$i]["quantity"],base64_encode($cart[$i]["pimage"]),$cart[$i]["pimagetype"]);
+                    cartItem(false,$_SESSION["user"]["user_id"],$cart[$i]["product_id"], $cart[$i]["pname"],$cart[$i]["pprice"],$cart[$i]["color"],$cart[$i]["version"],$cart[$i]["quantity"],$cart[$i]["pimage"],$cart[$i]["pimagetype"]);
                     $total += $cart[$i]["pprice"];
                     if(strpos($cart[$i]["version"],'fea1') !== false) {
                         $total += 50;
@@ -449,7 +449,7 @@ function orderRequest($conn) {
                     echo "
                     <div class='avtNname'>
                         <div class='small-avt'>";
-                        if(isset($avt["avatar"]) && isset($avt["avatar_type"]) && $avt["avatar"] !== null && $avt["avatar_type"] !== null) {
+                        if($avt["avatar"] != null && $avt["avatar_type"] != null) {
                             $type = $avt["avatar_type"];
                             $image = $avt["avatar"];
                             echo "<img src='$image' alt=''/>";
@@ -484,9 +484,6 @@ function orderRequest($conn) {
                             } else {
                                 $query = "SELECT * FROM order_products JOIN products ON order_products.product_id = products.product_id WHERE order_id = $orderId;";
                                 $itemResult = sqlsrv_query($conn, $query);
-                                if ($itemResult === false) {
-                                    die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
-                                }
                                 $total = 0;
                                 $i = 1;
                                 while($itemRow = sqlsrv_fetch_array($itemResult,SQLSRV_FETCH_ASSOC)) {

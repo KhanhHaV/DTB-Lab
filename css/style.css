@@ -2181,6 +2181,9 @@ nav {
 #radio-tab4:checked ~ #user #user-right #tabs-slider{
     margin-left: -300%;
 }
+#radio-tab5:checked ~ #user #user-right #tabs-slider{
+    margin-left: -300%;
+}
 #radio-tab1:checked ~ #user #user-left #user-tabs label:nth-child(1){
     background-color: rgba(255,255,255, 0.15);
 }
@@ -2193,6 +2196,10 @@ nav {
 #radio-tab4:checked ~ #user #user-left #user-tabs label:nth-child(4){
     background-color: rgba(255,255,255, 0.15);
 }
+#radio-tab5:checked ~ #user #user-left #user-tabs label:nth-child(4){
+    background-color: rgba(255,255,255, 0.15);
+}
+
 
 
 #user-right {

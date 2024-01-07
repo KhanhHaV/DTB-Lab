@@ -18,11 +18,11 @@
             echo "<p>Oops! Something went wrong2! :(</p>";
         } else {
             $query = "SELECT * FROM cart WHERE user_id = $userId AND product_id = $productId;";
-            $result = mysqli_query($conn,$query);
-            $row = mysqli_fetch_array($result);
+            $result = sqlsrv_query($conn,$query);
+            $row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
             if($row["quantity"] == 1 && $action == "dec") {
                 $query = "DELETE FROM cart WHERE user_id = $userId AND product_id = $productId;";
-                mysqli_query($conn, $query);
+                sqlsrv_query($conn, $query);
             } else {
                 $query = "UPDATE cart SET quantity = quantity ";
                 if($action == "dec") {
@@ -31,7 +31,7 @@
                     $query .= "+ ";
                 }
                 $query .= "1 WHERE user_id = $userId AND product_id = $productId;";
-                mysqli_query($conn, $query);
+                sqlsrv_query($conn, $query);
             }
             header("Location: manager.php?page=1");
         }
