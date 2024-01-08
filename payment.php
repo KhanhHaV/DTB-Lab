@@ -24,7 +24,7 @@
                         echo "<strong>x$quantity</strong>";
                     echo "</div>
                 </div>
-                <img class='item-bg' src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+                <img class='item-bg' src='$image' alt=''/>
             </div>
             ";
         }
@@ -126,7 +126,7 @@
                                 while($i < count($cart_array)) {
                                     echo "
                                     <li>";
-                                    cartItem(true,null,$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$color,$fea1." ".$fea2." ".$fea3,$quantity,base64_encode($cart_array[$i]["pimage"]),$cart_array[$i]["pimagetype"]);
+                                    cartItem(true,null,$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$color,$fea1." ".$fea2." ".$fea3,$quantity,$cart_array[$i]["pimage"],$cart_array[$i]["pimagetype"]);
                                     if($fea1 != "") {
                                         $total += 50;
                                     }

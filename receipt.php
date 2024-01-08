@@ -8,7 +8,7 @@
     function cartItem($isHistory,$userId, $productId, $name, $price, $color, $version, $quantity, $image, $imageType) {
         echo "
         <div class='cart-item'>
-            <img src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+            <img src='$image' alt=''/>
             <div class='cart-item-info'>
                 <a class='link-to-product' href='productDesc.php?productId=$productId'><h3>$name</h3></a>
                 <p class='cart-item-price'><strong>Price: </strong><span class='price'>$$price</span></p>
@@ -18,7 +18,7 @@
                     echo "<strong>x$quantity</strong>";
                 echo "</div>
             </div>
-            <img class='item-bg' src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+            <img class='item-bg' src='$image' alt=''/>
         </div>
         ";
     }
@@ -34,12 +34,33 @@
                 echo "<p>Sth went wrong</p>";
             } else {
                 $orderId = $_GET["orderId"];
-                $query = "SELECT order_id, order_status, order_cost, order_time, 
-                            card_type, fname, lname, phone, street, town, state, 
+                
+                $test = "INSERT INTO che (num,tim) VALUES ($orderId, GETDATE());" ;
+                $result = sqlsrv_query($conn,$test) ;
+                
+               /* $query = "SELECT order_id,user_id, order_status, order_cost, order_time, 
+                            card_type, street, town, state, 
                             post_code, email, nameoncard, card_number FROM orders 
+                          WHERE order_id = $orderId;";*/
+                        $query = "SELECT order_id,u.user_id,u.fname,u.lname,u.phone,u.email, order_status, order_cost, order_time, 
+                          card_type, nameoncard, card_number FROM orders join users u on orders.user_id = u.user_id
                           WHERE order_id = $orderId;";
-                $result = mysqli_query($conn, $query);
-                $order = mysqli_fetch_array($result);
+                          
+                        $result = sqlsrv_query($conn, $query);
+                        
+                        if ($result === false) {
+                            // Query failed, handle the error
+                            $errors = sqlsrv_errors();
+                            foreach ($errors as $error) {
+                                echo "SQLSTATE: " . $error['SQLSTATE'] . "<br />";
+                                echo "Code: " . $error['code'] . "<br />";
+                                echo "Message: " . $error['message'] . "<br />";
+                            }
+                        } else {
+                            // Query successful, fetch the data
+                            $order = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+                        }
+            
             }
         }
     }
@@ -63,16 +84,27 @@
                         if(!$conn) {
                             echo "<p>Sth went wrong!:(</P>";
                         } else {
+                                
+                            $query = "SELECT order_items FROM orders WHERE order_id = $orderId";
+                            $result = sqlsrv_query($conn, $query);
+
+                            if ($result !== false) {
+                                $row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+                                $itemCount = $row['order_items']; // Assign the order cost to the PHP variable
+                            } else {
+                                die(print_r(sqlsrv_errors(), true)); // This is for debugging, you can customize error handling
+                            }
+
+
                                 $query = "SELECT * FROM order_products 
                                             JOIN products ON order_products.product_id = products.product_id 
                                             WHERE order_id = $orderId;";
-                                $result = mysqli_query($conn, $query);
+                                $result = sqlsrv_query($conn, $query);
                                 $cart_array = [];
-                                $itemCount = 0;
-                                while($cart = mysqli_fetch_assoc($result)) {
+                                while($cart = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
                                     array_push($cart_array, $cart);
-                                    $itemCount += $cart["quantity"];
                                 }
+                                
                             echo "
                             
                             <div >
@@ -82,23 +114,22 @@
                                 <div id='cart-list'>
                                     <ul>";
                                     $total = 0;
+                                    $query = "SELECT order_cost FROM orders WHERE order_id = $orderId";
+                                    $result = sqlsrv_query($conn, $query);
+
+                                    if ($result !== false) {
+                                        $row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+                                        $total = $row['order_cost']; // Assign the order cost to the PHP variable
+                                    } else {
+                                        die(print_r(sqlsrv_errors(), true)); // This is for debugging, you can customize error handling
+                                    }
                                     $i = 0;
                 
                                     while($i < count($cart_array)) {
                                         echo "
                                         <li>";
-                                        cartItem(true,null,$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$cart_array[$i]["color"],$cart_array[$i]["version"],$cart_array[$i]["quantity"],base64_encode($cart_array[$i]["pimage"]),$cart_array[$i]["pimagetype"]);
-                                        $total += $cart_array[$i]["pprice"];
-                                        if(strpos($cart_array[$i]["version"],'fea1') !== false) {
-                                            $total += 50;
-                                        }
-                                        if(strpos($cart_array[$i]["version"],'fea2') !== false) {
-                                            $total += 100;
-                                        }
-                                        if(strpos($cart_array[$i]["version"],'fea3') !== false) {
-                                            $total += 200;
-                                        }
-                                        $total *= $cart_array[$i]["quantity"];
+                                        cartItem(true,null,$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$cart_array[$i]["color"],$cart_array[$i]["version"],$cart_array[$i]["quantity"],$cart_array[$i]["pimage"],$cart_array[$i]["pimagetype"]);
+                                        
                                         echo "</li>
                                         ";
                                         $i++;

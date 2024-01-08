@@ -99,30 +99,44 @@
             echo ")</h2>
             <div id='cart-list'>
                 <ul>";
-                $total = 0;
+                $total_cprice = 0;
+                    $total_item = 0;
                 $i = 0;
                 while($i < count($cart)) {
                     echo "
                     <li>";
                     cartItem(false,$_SESSION["user"]["user_id"],$cart[$i]["product_id"], $cart[$i]["pname"],$cart[$i]["pprice"],$cart[$i]["color"],$cart[$i]["version"],$cart[$i]["quantity"],$cart[$i]["pimage"],$cart[$i]["pimagetype"]);
-                    $total += $cart[$i]["pprice"];
-                    if(strpos($cart[$i]["version"],'fea1') !== false) {
-                        $total += 50;
+                    
+
+                    $query = "SELECT SUM(cprice) AS total_cprice FROM cart WHERE user_id = {$_SESSION['user']['user_id']}";
+                    $result = sqlsrv_query($conn, $query);
+                    if ($result === false) {
+                        die(print_r(sqlsrv_errors(), true)); // Handle query execution error
                     }
-                    if(strpos($cart[$i]["version"],'fea2') !== false) {
-                        $total += 100;
+                    if ($row = sqlsrv_fetch_array($result)) {
+                        $total_cprice = $row['total_cprice'];
+                    } else {
+                        echo "No data found"; // Handle case when no data is returned
                     }
-                    if(strpos($cart[$i]["version"],'fea3') !== false) {
-                        $total += 200;
+
+                    $query = "SELECT SUM(quantity) AS total_item FROM cart WHERE user_id = {$_SESSION['user']['user_id']}";
+                    $result = sqlsrv_query($conn, $query);
+                    if ($result === false) {
+                        die(print_r(sqlsrv_errors(), true)); // Handle query execution error
                     }
-                    $total *= $cart[$i]["quantity"];
+                    if ($row = sqlsrv_fetch_array($result)) {
+                        $total_item = $row['total_item'];
+                    } else {
+                        echo "No data found"; // Handle case when no data is returned
+                    }
+
                     echo "</li>
                     ";
                     $i++;
                 }
                 echo "</ul>
                 <hr/>
-                <h3>Total: <span class='price'>$$total</span></h3>
+                <h3>Total: <span class='price'>$$total_cprice - $total_item items</span></h3>
             </div>";
             if($itemCount > 0) echo "<a class='shop-btn' href='payment.php?userId=$userId'>Go to Checkout</a>";
         echo "</div>
@@ -143,7 +157,6 @@
                 array_push($history, $row);
             }
             echo "
-            
             <div class='tab' id='history-tab'>
             <h2>Order History</h2>
             <ul>
@@ -328,9 +341,7 @@ function orderRequest($conn) {
                         // select all products fromm database
                                 $query = "SELECT * FROM products ORDER BY ";
                                 $result = sqlsrv_query($conn,$query);
-                                if ($result === false) {
-                                    die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
-                                }
+                                
                                 $options = [];
                                 while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
                                     array_push($options, $row);
@@ -351,13 +362,9 @@ function orderRequest($conn) {
             </div>
         ";
         $orderBy = "order_time DESC;";
-        $query = "SELECT order_id, user_id, fname, lname, 
-                    phone, email, street, town, state, 
-                    post_code, pref_contact, order_status, order_time 
-                  FROM orders ";
+        $query = "SELECT order_id, user_id, pref_contact, order_status, order_time 
+                  FROM orders WHERE order_status != 'ARCHIVED' AND ";
 
-        // select all orders except the orders that have status of ARCHIVED
-        $query .= "WHERE order_status != 'ARCHIVED' AND ";
         $where = "";
         $whereCon = [];
         

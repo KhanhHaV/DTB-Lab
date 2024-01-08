@@ -16,7 +16,7 @@
             function cartItem($isHistory,$userId, $productId, $name, $price, $color, $version, $quantity, $image, $imageType) {
                 echo "
                 <div class='cart-item'>
-                    <img src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+                    <img src='$image' alt=''/>
                     <div class='cart-item-info'>
                         <h3>$name</h3>
                         <p class='cart-item-price'><strong>Price: </strong><span class='price'>$$price</span></p>
@@ -26,7 +26,7 @@
                             echo "<strong>x$quantity</strong>";
                         echo "</div>
                     </div>
-                    <img class='item-bg' src='data:image/$imageType;charset=utf8;base64,$image' alt=''/>
+                    <img class='item-bg' src='$image' alt=''/>
                 </div>
                 ";
             }
@@ -36,10 +36,10 @@
                 } else {
                     if($userId != null) {
                         $query = "SELECT * FROM cart JOIN products ON cart.product_id = products.product_id WHERE user_id = $userId;";
-                        $result = mysqli_query($conn, $query);
+                        $result = sqlsrv_query($conn, $query);
                         $cart_array = [];
                         $itemCount = 0;
-                        while($cart = mysqli_fetch_assoc($result)) {
+                        while($cart = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
                             array_push($cart_array, $cart);
                             $itemCount += $cart["quantity"];
                         }
@@ -57,7 +57,7 @@
                             while($i < count($cart_array)) {
                                 echo "
                                 <li>";
-                                cartItem(true,$_SESSION["user"]["user_id"],$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$cart_array[$i]["color"],$cart_array[$i]["version"],$cart_array[$i]["quantity"],base64_encode($cart_array[$i]["pimage"]),$cart_array[$i]["pimagetype"]);
+                                cartItem(true,$_SESSION["user"]["user_id"],$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$cart_array[$i]["color"],$cart_array[$i]["version"],$cart_array[$i]["quantity"],$cart_array[$i]["pimage"],$cart_array[$i]["pimagetype"]);
                                 $total += $cart_array[$i]["pprice"];
                                 if(strpos($cart_array[$i]["version"],'fea1') !== false) {
                                     $total += 50;
@@ -117,7 +117,7 @@
                                     while($i < count($cart_array)) {
                                         echo "
                                         <li>";
-                                        cartItem(true,null,$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$color,$fea1." ".$fea2." ".$fea3,$quantity,base64_encode($cart_array[$i]["pimage"]),$cart_array[$i]["pimagetype"]);
+                                        cartItem(true,null,$cart_array[$i]["product_id"], $cart_array[$i]["pname"],$cart_array[$i]["pprice"],$color,$fea1." ".$fea2." ".$fea3,$quantity,$cart_array[$i]["pimage"],$cart_array[$i]["pimagetype"]);
                                         if($fea1 != "") {
                                             $total += 50;
                                         }
@@ -152,10 +152,12 @@
                 if(!$conn) {
                     echo "<p>Sth went wrong!:(</P>";
                 } else {
-                        $fname = htmlspecialchars(trim($_GET["fname"]));   
-                        $lname = htmlspecialchars(trim($_GET["lname"]));
-                        $phone = htmlspecialchars(trim($_GET["phone"]));
-                        $email = htmlspecialchars(trim($_GET["email"]));
+                        
+                        $fname = htmlspecialchars(trim($_SESSION["user"]["fname"]));   
+                        $lname = htmlspecialchars(trim($_SESSION["user"]["lname"]));
+                        $phone = htmlspecialchars(trim($_SESSION["user"]["phone"]));
+                        $email = htmlspecialchars(trim($_SESSION["user"]["email"]));
+                        
                         $street = htmlspecialchars(trim($_GET["street"]));
                         $town = htmlspecialchars(trim($_GET["town"]));
                         $state = htmlspecialchars(trim($_GET["state"]));
