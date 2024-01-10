@@ -3,15 +3,15 @@
     if(!$conn) {
         echo "<p>Oops! Something went wrong! :(</p>";
     } else {
-       
+        $discount = 0;$addPcat = 0;
         $pname = htmlspecialchars(trim($_POST["pname"]));
         $pdesc = htmlspecialchars(trim($_POST["pdesc"]));
         $pprice = htmlspecialchars(trim($_POST["pprice"]));
         $discount = isset($_POST["discount"]) ? htmlspecialchars(trim($_POST["discount"])) : 0;
 
         $pstock = htmlspecialchars(trim($_POST["pstock"]));
-        
-
+        $addPcat = $_POST["add-pcat"];
+    
         // process image file
         $pimageName = basename($_FILES["pimage"]["name"]);
         $pimageType = pathinfo($pimageName, PATHINFO_EXTENSION);
@@ -23,10 +23,11 @@
             $pimage_tmp = $_FILES["pimage"]["tmp_name"];
             $folder = 'imageproduct/' . $pimage;
         }
+       
 
         $errMsg = 0;
 
-        if($pname == "" || $pdesc == "" || $pprice == "" || $pprice <= 0 ) {
+        if($pname == "" || $pdesc == "" || $pprice == "" || $pprice <= 0  ) {
             $errMsg += 1;
         }
 
@@ -37,17 +38,12 @@
            
             if (move_uploaded_file($pimage_tmp, $folder)) {
                 echo "<h3>  Image uploaded successfully!</h3>";
-                if ( $discount ){
-                $query .= "INSERT INTO products (pname, pdesc, pprice,pimage,pimagetype, pdate,discount,pstock) VALUES 
-                ('$pname','$pdesc',$pprice,'$folder','$pimageType', GETDATE(),$discount, $pstock);";
-                $result = sqlsrv_query($conn,$query);
-                } else {
-                $query .= "INSERT INTO products (pname, pdesc, pprice,pimage,pimagetype, pdate,pstock) VALUES 
-                ('$pname','$pdesc',$pprice,'$folder','$pimageType', GETDATE(), $pstock);";
-                $result = sqlsrv_query($conn,$query);
-                }
-            
                 
+                $query .= "INSERT INTO products (pname, pdesc, pprice,pimage,pimagetype, pdate,discount,pstock,cat_id) VALUES 
+                ('$pname','$pdesc',$pprice,'$folder','$pimageType', GETDATE(),$discount, $pstock,$addPcat);";
+                $result = sqlsrv_query($conn,$query);
+            
+        
             } else {
                 echo "<h3>  Failed to upload image!</h3>";
             }

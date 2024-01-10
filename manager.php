@@ -167,13 +167,14 @@
             while($i < count($history)) {
                 $orderId = $history[$i]["order_id"];
                 $date = $history[$i]["order_time"];
+                $dateString = $date->format('d/m/Y');
                 $status = $history[$i]["order_status"];
                 echo "
                 <li>
                     <div class='prev-order'>    
                         <div class='general-order-info'>
                             <h3>Order ID: $orderId</h3>
-                            <p><strong>Date: </strong>$date</p>
+                            <p><strong>Date: </strong><?php echo $dateString; ?></p>
                             <p><strong>Status: </strong><span class='$status'>$status</span></p>
                         </div>
                         <hr/>
@@ -194,7 +195,7 @@
 
                 // display products
                 while($j < count($historyItem)) {
-                    cartItem(true,$_SESSION["user"]["user_id"],$historyItem[$j]["product_id"], $historyItem[$j]["pname"],$historyItem[$j]["pprice"],$historyItem[$j]["color"],$historyItem[$j]["version"],$historyItem[$j]["quantity"],base64_encode($historyItem[$j]["pimage"]),$historyItem[$j]["pimagetype"]);
+                    cartItem(true,$_SESSION["user"]["user_id"],$historyItem[$j]["product_id"], $historyItem[$j]["pname"],$historyItem[$j]["pprice"],$historyItem[$j]["color"],$historyItem[$j]["version"],$historyItem[$j]["quantity"],$historyItem[$j]["pimage"],$historyItem[$j]["pimagetype"]);
                    
                     $total += $historyItem[$j]["pprice"];
                     if(strpos($historyItem[$j]["version"],'fea1') !== false) {
@@ -228,7 +229,7 @@
     }
 
 
-    function addProduct() {
+    function addProduct($conn) {
         echo "
         <div class='tab products-tab'>
             <h2>Add a Product</h2>
@@ -257,6 +258,23 @@
                     <label for='pstock'>Product stock </label>
                     <input type='number' min='1' name='pstock' id='pstock' required>
                 </div>
+                <div>
+                <label for='add-pcat'>Add Category: </label>
+                <select name='add-pcat' >
+                    <option value=''>Select</option>";
+                    if(!$conn) {
+                        echo "<p>Sth went wrong!:(</P>";
+                    } else {
+                        $query = "SELECT * FROM category ORDER BY cat_id DESC;";
+                        $result = sqlsrv_query($conn, $query);
+                        while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
+                            $id = $row["cat_id"];
+                            $name = $row["cat_name"];
+                            echo "<option value='$id'>ID: $id, Name: $name</option>";
+                        }
+                    }
+                echo "</select>
+            </div>
                 
                 <input type='submit' id='update-btn' class='shop-btn' value='Add'/>
             </form>
@@ -308,10 +326,27 @@ function editProduct($conn) {
             <label for='pstock'>Product stock </label>
             <input type='number' min = '1' name='pstock' id='pstock' >
             </div>
+            <div>
+                <label for='add-pcat'>Add Category: </label>
+                <select name='add-pcat' >
+                    <option value=''>Select</option>";
+                    if(!$conn) {
+                        echo "<p>Sth went wrong!:(</P>";
+                    } else {
+                        $query = "SELECT * FROM category ORDER BY cat_id DESC;";
+                        $result = sqlsrv_query($conn, $query);
+                        while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
+                            $id = $row["cat_id"];
+                            $name = $row["cat_name"];
+                            echo "<option value='$id'>ID: $id, Name: $name</option>";
+                        }
+                    }
+                echo "</select>
+            </div>
             <div id='edit-btns'>
                 <input type='submit' id='update-btn' class='shop-btn' value='Edit'/>
                 <input type='submit' id='delete-btn' name='delete' class='shop-btn' value='Delete'/>
-            </div>
+            </div> 
         </form>
     </div>
     ";
@@ -339,7 +374,7 @@ function orderRequest($conn) {
                     <select id='product' class='order half' name='product'>
                         <option value=''>Orders contain product</option>";
                         // select all products fromm database
-                                $query = "SELECT * FROM products ORDER BY ";
+                                $query = "SELECT * FROM products ; ";
                                 $result = sqlsrv_query($conn,$query);
                                 
                                 $options = [];
@@ -362,8 +397,9 @@ function orderRequest($conn) {
             </div>
         ";
         $orderBy = "order_time DESC;";
-        $query = "SELECT order_id, user_id, pref_contact, order_status, order_time 
-                  FROM orders WHERE order_status != 'ARCHIVED' AND ";
+        $query = "SELECT order_id, u.user_id, pref_contact, order_status, order_time , u.fname, u.lname,u.phone,u.email,post_code,street,state,town
+                FROM orders join users u on orders.user_id = u.user_id 
+                WHERE order_status != 'ARCHIVED' AND ";
 
         $where = "";
         $whereCon = [];
@@ -403,7 +439,7 @@ function orderRequest($conn) {
         }
 
         // solve the redundant AND issue when appending query
-        $where .= "1 ";
+        $where .= "1 = 1 ";
         $query .= $where;
 
         //  check if admin select option to sort orders and append conditions to query
@@ -425,12 +461,12 @@ function orderRequest($conn) {
         } else $orderBy = "order_time DESC";
         $query .= "ORDER BY $orderBy;";
         $result = sqlsrv_query($conn,$query);
-        
+
         if ($result === false) {
             die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
         }
         
-        // display every order tab
+        // display every order tab 
         while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
             $orderId = $row["order_id"];
             $userId = $row["user_id"];
@@ -445,6 +481,8 @@ function orderRequest($conn) {
             $prefContact = $row["pref_contact"];
             $status = $row["order_status"];
             $date = $row["order_time"];
+            $dateString = $date->format('d/m/Y');
+
             $avt = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT avatar, avatar_type FROM users WHERE user_id = ". $userId .";"),SQLSRV_FETCH_ASSOC);
             echo "
                 <div class='request-item'>";
@@ -468,7 +506,7 @@ function orderRequest($conn) {
                         <h3>$fname $lname</h3>
                     </div>
                     <h4>Order ID: $orderId</h4>
-                    <div class='order-general-info'><strong>Date: </strong><span>$date</span></div>
+                    <p><strong>Date: </strong><?php echo $dateString; ?></p>
                     <div class='order-general-info'><strong>Email: </strong><span>$email</span></div>
                     <div class='order-general-info'><strong>Phone: </strong><span>$phone</span></div>
                     <div class='order-general-info'><strong>Address: </strong><span>$street, $town, $state $postCode</span></div>
@@ -580,7 +618,7 @@ function orderRequest($conn) {
 }
 function doneRequest($conn) {
     if(!$conn) {
-        echo "<p>Sth went wrong!:(</P>";
+        echo "<p>Sth went wrong!:(</p>";
     } else {
         echo "
         <div class='tab' id='order-request'>
@@ -606,6 +644,7 @@ function doneRequest($conn) {
             $prefContact = $row["pref_contact"];
             $status = $row["order_status"];
             $date = $row["order_time"];
+            $dateString = $date->format('d/m/Y');
             $avt = sqlsrv_fetch_array(sqlsrv_query($conn, "SELECT avatar, avatar_type FROM users WHERE user_id = ". $userId .";"),SQLSRV_FETCH_ASSOC);
             echo "
                 <div class='request-item'>";
@@ -629,7 +668,7 @@ function doneRequest($conn) {
                         <h3>$fname $lname</h3>
                     </div>
                     <h4>Order ID: $orderId</h4>
-                    <div class='order-general-info'><strong>Date: </strong><span>$date</span></div>
+                    <div class='order-general-info'><strong>Date: </strong><span>$dateString</span></div>
                     <div class='order-general-info'><strong>Email: </strong><span>$email</span></div>
                     <div class='order-general-info'><strong>Phone: </strong><span>$phone</span></div>
                     <div class='order-general-info'><strong>Address: </strong><span>$street, $town, $state $postCode</span></div>
@@ -711,6 +750,47 @@ function doneRequest($conn) {
     }
 
 }
+
+
+function addCat($conn) {
+    if(!$conn) {
+        echo "<p>Sth went wrong!:(</P>";
+    } else {
+        echo "
+        <div class='tab products-tab' id='add-cat'>
+            <h2>Add Categories</h2>
+            <form method='POST' action='addCategory.php' enctype='multipart/form-data'>
+                    <div>
+                    <label for='catname'>Category name </label>
+                    <input type='text' name='catname' id='catname' />
+                    </div>
+                    <div>
+                        <label for='delete-cat'>Delete Category: </label>
+                        <select name='delete-cat' >
+                            <option value=''>Select</option>";
+                            if(!$conn) {
+                                echo "<p>Sth went wrong!:(</P>";
+                            } else {
+                                $query = "SELECT * FROM category ORDER BY cat_id DESC;";
+                                $result = sqlsrv_query($conn, $query);
+                                while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
+                                    $id = $row["cat_id"];
+                                    $name = $row["cat_name"];
+                                    echo "<option value='$id'>ID: $id, Name: $name</option>";
+                                }
+                            }
+                        echo "</select>
+                    </div>
+
+                    <div id='edit-btns'>
+                    <input type='submit' id='update-btn' class='shop-btn' value='Add'/>
+                    <input type='submit' id='delete-btn' name='delete' class='shop-btn' value='Delete'/>
+                </div>
+            </form>
+        ";
+        echo "</div>";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -725,7 +805,7 @@ function doneRequest($conn) {
             <div id="container">
                 <section>
                     <?php
-                    for ($i = 0; $i < 4; $i++) {
+                    for ($i = 0; $i < 5; $i++) {
                         $tab = $i +1;
                         if(!isset($_GET["page"])) {
                             if($i == 0) {
@@ -757,7 +837,7 @@ function doneRequest($conn) {
                                     $query = "SELECT avatar, avatar_type FROM users WHERE user_id = ". $_SESSION["user"]["user_id"] .";";
                                     $result = sqlsrv_query($conn, $query);
                                     $row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
-                                    if($row["avatar"] != null && $row["avatar_type"] != null) {
+                                    if($row["avatar"] != NULL && $row["avatar_type"] != NULL) {
                                         $type = $row["avatar_type"];
                                         $image = $row["avatar"];
                                         echo "<img src='$image' alt=''/>";
@@ -798,6 +878,9 @@ function doneRequest($conn) {
                                         <label for='radio-tab4'>
                                             Done Requests
                                         </label>
+                                        <label for='radio-tab5'>
+                                            Add Categories
+                                        </label>
                                     </div>
                                     ";
                                 }
@@ -819,10 +902,11 @@ function doneRequest($conn) {
                                 
                                 // If type == 1, show tabs for admin
                                 } elseif($_SESSION["user"]["type"] == 1) {
-                                    addProduct();
+                                    addProduct($conn);
                                     editProduct($conn);
                                     orderRequest($conn);
                                     doneRequest($conn);
+                                    addCat($conn);
                                 }
                             ?>
                         </div>

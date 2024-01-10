@@ -1,13 +1,32 @@
 <?php
+
+    function disCat($cats) {
+        $html = "<div class='cats'>";
+        while($row = sqlsrv_fetch_array($cats,SQLSRV_FETCH_ASSOC))
+        {
+            $html .= "
+            <div class='cat-link cat-item'>
+                <a href='products.php?cat=" . (string)$row["cat_id"] . "'>" . $row["cat_name"] . "</a>
+            </div>
+           
+        ";
+        }
+        $html .= "</div>";
+        return $html;
+    }
     include("head.inc");
     include("header.inc");
     include("footer.inc");
     include("galleryItem.inc");
     include("connect.inc");
+    $query = "SELECT * FROM category ORDER BY cat_name;" ;
+    $result = sqlsrv_query($conn,$query) ;
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+    
     <?php
         head_code();
     ?>
@@ -22,13 +41,14 @@
                         <div id="intro-background" class="intro-products">
                             <div id=intro-left>
                                 <h2>Our products</h2>
-                                <img class="divider" src="images/divider.png" alt=""/>
+                                <img class=" divider" src="images/divider.png" alt=""/>
                                 <div class="intro-desc">
                                     <p><i>BRUHHH is a shop that sell smoking products for healthier life style.</i></p>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <form id="search-box" method='POST' action='products.php'>
                         <input type="text" name="searchkey" id="searchkey" placeholder="What are you looking for? ..."/>
                         <div id="filter-box">
@@ -42,9 +62,12 @@
                         </select>
                         </div>
                         <button id="search-btn" type="submit">
-                            <img src="images/search.svg" alt="">
+                            <img src="images/Search.svg" alt="">
                         </button>
                     </form>
+                    <?php
+                        echo disCat($result);
+                    ?>
                 </section>
                 <section>
                     <div id="product-list">
@@ -53,10 +76,14 @@
                                 echo "<p>Oops! Something went wrong! :(</p>";
                             } else {
                                 $orderBy = "pdate DESC;";
-                                $query = "SELECT * FROM dbo.products ";
+                                $query = "SELECT * FROM dbo.products WHERE 1 = 1";
                                 if(isset($_POST["searchkey"])) {
                                     $searchKey = $_POST["searchkey"];
-                                    $query .= "WHERE pname LIKE '%$searchKey%' ";
+                                    $query .= " AND pname LIKE '%$searchKey%' ";
+                                }
+                                if(isset($_GET["cat"])) {
+                                    $cat = $_GET["cat"];
+                                    $query .= "AND cat_id = '$cat' ";
                                 }
                                 if(isset($_POST["order"])) {
                                     switch($_POST["order"]) {
@@ -104,37 +131,7 @@
                                     }
                                 }
                             }
-                            if(isset($_POST["searchkey"]) || isset($_POST["order"])) {
-                                $searchMsg = "<p class='search-msg'>Search result for ";
-                                if(isset($_POST["searchkey"]) && $_POST["searchkey"] != "") {
-                                    $searchMsg .= '"'.$_POST["searchkey"].'" ';
-                                }
-                                if(isset($_POST["order"])) {
-                                    $searchMsg .= "filter by ";
-                                    switch($_POST["order"]) {
-                                        case 'price-up':
-                                            $searchMsg .= "Price: Low to high.";
-                                            break; 
-                                        case 'price-down':
-                                            $searchMsg .= "Price: High to low.";
-                                            break; 
-                                        case 'old-up':
-                                            $searchMsg .= "Latest arrival.";
-                                            break; 
-                                        case 'old-down':
-                                            $searchMsg .= "Earliest arrival.";
-                                            break; 
-                                        case 'name-up':
-                                            $searchMsg .= "A-Z.";
-                                            break; 
-                                        case 'name-down':
-                                            $searchMsg .= "Z-A.";
-                                            break;
-                                    }
-                                }
-                                $searchMsg .= "</p>";
-                                echo $searchMsg;
-                            }
+                           
                         ?>
                         <div id="sec3">
                             <?php
@@ -196,3 +193,4 @@
         ?>
     </body>
 </html>
+

@@ -9,6 +9,6 @@
     if ($conn === false) {
         die(print_r(sqlsrv_errors(), true)); // Handle connection errors
     } else {
-        echo "Connected to SQL Server successfully";
+       
     }
 ?>

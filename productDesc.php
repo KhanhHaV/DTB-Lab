@@ -54,7 +54,19 @@
                         <aside><img src='$image' alt=''/></aside>
                         <div class='description'>
                             <h3>$name</h3>
-                            <p class='price'>$$price</p>
+                            <div style='position: relative;width: fit-content; display: flex; align-items: center;'>
+                                <p class='price'>
+                                    $$price
+                                </p>
+                                <hr style='position: absolute;width: 100%;color: white;z-index: 1'>
+                            </div>
+                            <div style='position: relative;width: fit-content; display: flex; align-items: center;'>
+                                <p class='price after-disc'>
+                                    $$price
+                                </p>
+                            </div>
+
+                            
                             <p class='pstock'> <strong>AVAILABLE:</strong> $pstock</p>
                             <p>$desc</p>
                             <table class='info-table'>
@@ -99,7 +111,7 @@
                                 <div  class='other-group box-group'>
                                     <label><strong>Version: </strong></label>
                                     <label for='fea1' class='option-group'>Elite
-                                        <input type='checkbox' id='fea1' name='fea1' value='fea1' checked='checked'/>
+                                        <input type='checkbox' id='fea' name='fea1' value='fea1' checked='checked'/>
                                         <span class='box-checkmark'></span>
                                     </label>
                                     <label for='fea2' class='option-group'>Premium
@@ -120,7 +132,7 @@
                                     </select>
                                 </div>
                                 <div class='group'>
-                                    <input type='number' id='quantity' name='quantity' required='required' value='1' />
+                                    <input type='number' max= '$pstock' id='quantity'  name='quantity' required='required' value='1' />
                                     <span class='highlight'></span>
                                     <span class='bar'></span>
                                     <label for='quantity'><strong>Quantity: </strong></label>

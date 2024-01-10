@@ -180,10 +180,11 @@
             } else {
                 echo "No data found"; // Handle case when no data is returned
             }
+            
 
             
-            $query = "INSERT INTO orders (user_id,pref_contact, card_type, nameoncard, card_number, expiry, cvv, order_cost, order_time,order_items) VALUES 
-                                          ($userId,'$prefContact','$cardType','$nameOnCard','$cardNumber','$expiry','$cvv',$total_cprice, GETDATE(), $total_item);";
+            $query = "INSERT INTO orders (user_id,pref_contact, card_type, nameoncard, card_number, expiry, cvv, order_cost, order_time,order_items,town,street,state,post_code) VALUES 
+                                          ($userId,'$prefContact','$cardType','$nameOnCard','$cardNumber','$expiry','$cvv',$total_cprice, GETDATE(), $total_item,'$town','$street','$state','$postCode');";
             $result = sqlsrv_query($conn,$query) ;
             if ($result === false) {
                 die(print_r(sqlsrv_errors(), true)); // Handle query execution error

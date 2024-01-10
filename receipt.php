@@ -43,8 +43,8 @@
                             post_code, email, nameoncard, card_number FROM orders 
                           WHERE order_id = $orderId;";*/
                         $query = "SELECT order_id,u.user_id,u.fname,u.lname,u.phone,u.email, order_status, order_cost, order_time, 
-                          card_type, nameoncard, card_number FROM orders join users u on orders.user_id = u.user_id
-                          WHERE order_id = $orderId;";
+                        card_type, nameoncard, card_number,street,state,town,post_code FROM orders join users u on orders.user_id = u.user_id
+                        WHERE order_id = $orderId;";
                           
                         $result = sqlsrv_query($conn, $query);
                         
@@ -57,7 +57,6 @@
                                 echo "Message: " . $error['message'] . "<br />";
                             }
                         } else {
-                            // Query successful, fetch the data
                             $order = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
                         }
             
@@ -152,9 +151,17 @@
                                 <span><?php if($order) echo $order["order_status"];?></span>
                             </div>
                             <div class='payment-info'>
-                                <strong>Date: </strong>
-                                <span><?php if($order) echo $order["order_time"];?></span>
+                        <strong>Date: </strong>
+                            <span>
+                                <?php
+                                // Assuming $order["order_time"] is a DateTime object
+                                    if ($order && isset($order["order_time"]) && $order["order_time"] instanceof DateTime) {
+                                    echo $order["order_time"]->format('Y-m-d H:i:s'); // Format DateTime to a string
+                                    }
+                                ?>
+                             </span>
                             </div>
+
                             <div class='payment-info'>
                                 <strong>Method: </strong>
                                 <span><?php if($order) echo $order["card_type"];?></span>
@@ -206,9 +213,19 @@
                                 <span><?php if($order) echo $order["phone"];?></span>
                             </div>
                             <div class='payment-info'>
-                                <strong>Address: </strong>
-                                <span><?php if($order) echo $order["street"] . ", " . $order["town"] . ", " . $order["state"] . " " . $order["post_code"];?></span>
-                            </div>
+                        <strong>Address: </strong>
+                            <span>
+                                <?php
+        // Check if $order is set and if the necessary keys exist in $order
+                                if ($order && isset($order["street"], $order["town"], $order["state"], $order["post_code"])) {
+                                 echo $order["street"] . ", " . $order["town"] . ", " . $order["state"] . " " . $order["post_code"];
+                            } else {
+                                echo "Address information not available";
+                                }
+        ?>
+    </span>
+</div>
+
                         </div>
                         <a class='shop-btn' href='products.php'>Continue Shopping</a>
                     </div>
