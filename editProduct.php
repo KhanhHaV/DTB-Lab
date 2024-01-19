@@ -17,12 +17,16 @@
             $pstock = "";
             $discount = "";
             $addPcat =""; 
+            $folder = "";
+            $color = "";
+            
 
             if(isset($_POST["pname"])) $pname = htmlspecialchars(trim($_POST["pname"]));
             if(isset($_POST["pdesc"])) $pdesc = htmlspecialchars(trim($_POST["pdesc"]));
             if(isset($_POST["pprice"])) $pprice = htmlspecialchars(trim($_POST["pprice"]));
             if(isset($_POST["discount"])) $discount = htmlspecialchars(trim($_POST["discount"]));
             if(isset($_POST["pstock"])) $pstock = htmlspecialchars(trim($_POST["pstock"]));
+            if(isset($_POST["color"])) $color = htmlspecialchars(trim($_POST["color"]));
             $addPcat = $_POST["add-pcat"];
            
             
@@ -45,15 +49,14 @@
     
             $errMsg = 0;
           
-            if($pname == "" && $pdesc == "" && $pprice == "" && $folder == "" && $pstock == ""&& $discount == "" && $addPcat =="") {
+            if($pname == "" && $pdesc == "" && $pprice == "" && $folder == "" && $pstock == ""&& $discount == "" && $addPcat =="" && $color == "") {
                 $errMsg += 1;
             }
            
-          
-           
+        
             if($errMsg != 0) {
                
-                echo "<p>Oops! Something went wrong! :(</p>";
+                header("Location: manager.php?page=1");
             } else {
                
                 // query to update product information
@@ -82,6 +85,12 @@
                 $query = trim($query, ", ");
                 $query .= " WHERE product_id = $editingProduct;";
                 $result = sqlsrv_query($conn,$query);
+
+                if($color != "") {
+                    $query = "INSERT INTO product_detail VALUES ($editingProduct,'fea1','$color')";
+                    $result = sqlsrv_query($conn,$query);
+                }
+
                 header("Location: manager.php?page=1");
             }
         }

@@ -78,29 +78,39 @@
         if(!$conn) {
             echo "<p>Sth went wrong!:(</P>";
         } else {
+          
+
+            $query = "SELECT SUM(quantity) AS total_item FROM cart WHERE user_id = {$_SESSION['user']['user_id']}";
+            $result = sqlsrv_query($conn, $query);
+            if ($result === false) {
+                die(print_r(sqlsrv_errors(), true)); // Handle query execution error
+            }
+            if ($row = sqlsrv_fetch_array($result)) {
+                $total_item = $row['total_item'];
+            } else {
+                echo "No data found"; // Handle case when no data is returned
+            }
+            
             $query = "SELECT * FROM cart JOIN products ON cart.product_id = products.product_id WHERE user_id = $userId;";
             $result = sqlsrv_query($conn, $query);
             if ($result === false) {
                 die(print_r(sqlsrv_errors(), true)); // This will output detailed error information
             }
-            // $cart = mysqli_fetch_array($result);
-            // $itemCount = count($cart);
             $cart = [];
-            $itemCount = 0;
+         
             while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
                 array_push($cart, $row);
-                $itemCount += $row["quantity"];
             }
         echo "
         
         <div class='tab' id='cart-tab'>
-            <h2>Your Cart ($itemCount item";
-            if($itemCount > 1) echo "s";
+            <h2>Your Cart ($total_item  item";
+            if($total_item > 1) echo "s";
             echo ")</h2>
             <div id='cart-list'>
                 <ul>";
                 $total_cprice = 0;
-                    $total_item = 0;
+               
                 $i = 0;
                 while($i < count($cart)) {
                     echo "
@@ -119,17 +129,6 @@
                         echo "No data found"; // Handle case when no data is returned
                     }
 
-                    $query = "SELECT SUM(quantity) AS total_item FROM cart WHERE user_id = {$_SESSION['user']['user_id']}";
-                    $result = sqlsrv_query($conn, $query);
-                    if ($result === false) {
-                        die(print_r(sqlsrv_errors(), true)); // Handle query execution error
-                    }
-                    if ($row = sqlsrv_fetch_array($result)) {
-                        $total_item = $row['total_item'];
-                    } else {
-                        echo "No data found"; // Handle case when no data is returned
-                    }
-
                     echo "</li>
                     ";
                     $i++;
@@ -138,7 +137,7 @@
                 <hr/>
                 <h3>Total: <span class='price'>$$total_cprice - $total_item items</span></h3>
             </div>";
-            if($itemCount > 0) echo "<a class='shop-btn' href='payment.php?userId=$userId'>Go to Checkout</a>";
+            if($total_item  > 0) echo "<a class='shop-btn' href='payment.php?userId=$userId'>Go to Checkout</a>";
         echo "</div>
         ";
         }
@@ -159,6 +158,10 @@
             echo "
             <div class='tab' id='history-tab'>
             <h2>Order History</h2>
+            <div>
+            <h3>Total: <span class='price'>$$0 - $0 items</span></h3>
+            <hr/>
+            </div>
             <ul>
             ";
             $i= 0;
@@ -318,6 +321,11 @@ function editProduct($conn) {
                 <label for='pimage'>Product image </label>
                 <input type='file' name='pimage' id='pimage' accept='image/png, image/gif, image/jpeg'  />
             </div>
+            <div>
+            <label for='color'>Add Color </label>
+            <textarea type='color' name='color' id='color' ></textarea>
+            </div>
+
             <div>
                 <label for='discount'>Product discount </label>
                 <input type='number' min='0' max='100' name='discount' id='discount' >
@@ -620,9 +628,26 @@ function doneRequest($conn) {
     if(!$conn) {
         echo "<p>Sth went wrong!:(</p>";
     } else {
+        
+
+        $query = "SELECT * FROM admin ;";
+        $result = sqlsrv_query($conn, $query);
+        if ($result === false) {
+            die(print_r(sqlsrv_errors(), true)); // Handle query execution error
+        }
+        if ($row = sqlsrv_fetch_array($result)) {
+            $total_sold = $row['total_sold'];
+            $sold = $row['sold'];
+        } else {
+            echo "No data found"; // Handle case when no data is returned
+        }
+
         echo "
         <div class='tab' id='order-request'>
             <h2>Done Requests</h2>
+            <h3>Total: <span class='price'>$$sold - $total_sold items</span></h3>
+            <hr/>
+        
         ";
         $query = "SELECT order_id, user_id, fname, lname, phone, email, street, town, state, post_code, pref_contact, order_status, order_time FROM orders WHERE order_status = 'ARCHIVED' ORDER BY order_time DESC;";
         $result = sqlsrv_query($conn,$query);

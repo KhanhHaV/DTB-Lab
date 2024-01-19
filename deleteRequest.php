@@ -9,8 +9,9 @@
         } else {
             $orderId = $_GET["orderId"];
             $query = "DELETE FROM orders WHERE order_id = $orderId;";
-            $query .= "DELETE FROM order_products WHERE order_id = $orderId";
-            mysqli_multi_query($conn, $query);
+            sqlsrv_query($conn, $query);
+            $query = "DELETE FROM order_products WHERE order_id = $orderId";
+            sqlsrv_query($conn, $query);
             header("Location: manager.php?page=2");
         }
     }

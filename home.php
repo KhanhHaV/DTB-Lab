@@ -100,7 +100,7 @@
                                             echo "<ul class='item-list page$pageIndex'>";
                                             $pageIndex += 1;
                                         }
-                                        galleryItem($rowLast, $row["product_id"],$row["pname"],$row["pdesc"],$row["pprice"],$row["pimage"],$row["pimagetype"]);
+                                        galleryItem($rowLast, $row["product_id"],$row["pname"],$row["pdesc"],$row["pprice"],$row["pimage"],$row["pimagetype"],$row["discount"]);
                                         if($rowIndex % 9 == 0) {
                                             echo "</ul>";
                                         }

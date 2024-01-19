@@ -69,8 +69,8 @@
                     }
                 }
                 $query = "SELECT email FROM users WHERE email = '$email' AND type = 0;";
-                $result = mysqli_query($conn, $query);
-                if($row = mysqli_fetch_array($result)) {
+                $result = sqlsrv_query($conn, $query);
+                if($row = sqlsrv_fetch_array($result,sqlsrv_fetch_assoc)) {
                     if($row["email"] == $email) {
                         array_push($errors,'err_email_exists');
                     }
@@ -186,78 +186,65 @@
                 } else {
                     $lastId = 0;
                     $query = "SELECT user_id, email FROM users WHERE email = '$email' AND type = 2;";
-                    $result = mysqli_query($conn, $query);
-                    if($row = mysqli_fetch_array($result)) {
+                    $result = sqlsrv_query($conn, $query);
+                    if($row = sqlsrv_fetch_array($result,sqlsrv_fetch_assoc)) {
                         if($row["email"] == $email) {
                             $lastId = $row["user_id"];
                         }
                     } else {
                         $query = "INSERT INTO users (fname,lname,phone,email,address,type,password) VALUES ('$fname','$lname','$phone','$email', '$address',2,'password');";
-                        $query .= "SELECT user_id FROM users ORDER BY user_id DESC LIMIT 1";
-                        if (mysqli_multi_query($conn, $query)) {
-                            do {
-                                // Store first result set
-                                if ($result = mysqli_store_result($conn)) {
-                                while ($row = mysqli_fetch_row($result)) {
-                                    if($row[0]) $lastId = $row[0];
-                                }
-                                mysqli_free_result($result);
-                                }
-                                // if there are more result-sets, the print a divider
-                                mysqli_more_results($conn);
-                                //Prepare next result set
-                            } while (mysqli_next_result($conn));
-                        // }
+                        $result = sqlsrv_query($conn, $query);
+                        if ($result === false) {
+                            die(print_r(sqlsrv_errors(), true));
+                        } else {
+                            // Process the result set, fetch rows, etc.
+                        }
+                        
                     }
                     }
                     $query = "SELECT * FROM products WHERE product_id = $product;";
-                    $result = mysqli_query($conn,$query);
+                    $result = sqlsrv_query($conn,$query);
                     $totalCost = 0;
-                    while($row = mysqli_fetch_array($result)) {
+                    while($row = sqlsrv_fetch_array($result)) {
                         $totalCost += $row["pprice"] * $quantity;
                     }
 
                     // query to create table order if not already exists
-                    $query = "CREATE TABLE IF NOT EXISTS orders (
-                                order_id INT AUTO_INCREMENT PRIMARY KEY, user_id INT,
-                                fname VARCHAR(20), lname VARCHAR(20), phone VARCHAR(15), email VARCHAR(50), 
-                                street VARCHAR(40), town VARCHAR(40), state VARCHAR(4), post_code VARCHAR(5),
-                                pref_contact VARCHAR(5), card_type VARCHAR(20),
-                                nameoncard VARCHAR(50), card_number VARCHAR(30), expiry VARCHAR(20),
-                                cvv VARCHAR(20), order_cost INT, order_status VARCHAR(20) DEFAULT 'PENDING', 
-                                order_time DATETIME
-                            );";
-                    $query .= "INSERT INTO orders (user_id, fname, lname, phone, email, street, town, state, post_code, pref_contact, card_type, nameoncard, card_number, expiry, cvv, order_cost, order_time) VALUES 
-                                                 ($lastId,'$fname','$lname','$phone','$email','$street','$town','$state','$postCode','$prefContact','$cardType','$nameOnCard','$cardNumber','$expiry','$cvv',$totalCost, CONVERT_TZ(NOW(), @@session.time_zone, '+07:00'));";
-                    $query .= "SELECT order_id FROM orders ORDER BY order_id DESC LIMIT 1;";
-                    echo $query;
-                    $lastId = 0;
-                    if (mysqli_multi_query($conn, $query)) {
-                        do {
-                          // Store first result set
-                          if ($result = mysqli_store_result($conn)) {
-                            while ($row = mysqli_fetch_row($result)) {
-                              if($row[0]) $lastId = $row[0];
-                            }
-                            mysqli_free_result($result);
-                          }
-                          // if there are more result-sets, the print a divider
-                          mysqli_more_results($conn);
-                           //Prepare next result set
-                        } while (mysqli_next_result($conn));
+                    $query = "INSERT INTO orders (user_id,pref_contact, card_type, nameoncard, card_number, expiry, cvv, order_cost, order_time,order_items,town,street,state,post_code) VALUES 
+                    ($userId,'$prefContact','$cardType','$nameOnCard','$cardNumber','$expiry','$cvv',$total_cprice, GETDATE(), $total_item,'$town','$street','$state','$postCode');";
+                    $result = sqlsrv_query($conn,$query) ;
+
+                    if ($result === false) {
+                    die(print_r(sqlsrv_errors(), true)); // Handle query execution error
                     }
-                    $query = "CREATE TABLE IF NOT EXISTS order_products (order_id INT, product_id INT, color VARCHAR(20), version VARCHAR(20), quantity INT, PRIMARY KEY(order_id, product_id));";
-                    $query .= "INSERT INTO order_products (order_id, product_id, color, version, quantity) VALUES ($lastId, $product, '$color', '";
-                    if($fea1 != "") $query .= "$fea1 ";
-                    if($fea2 != "") $query .= "$fea2 ";
-                    if($fea3 != "") $query .= "$fea3 ";
-                    $query .= "', $quantity);";
-                    mysqli_multi_query($conn, $query);
+
+                    $query = "SELECT TOP 1 order_id as order_id FROM orders WHERE user_id = $userId  ORDER BY order_time DESC;";
+                    $result = sqlsrv_query($conn, $query);
+                    $lastId = 0; 
+                    if ($result !== false) {
+                    $row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+                    if ($row)  $lastId = $row['order_id']; 
+                    }
+
+                    $query = "SELECT * FROM cart WHERE user_id = $userId;";
+                    $result = sqlsrv_query($conn,$query);
+                    while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
+
+                    $productId = $row["product_id"];
+                    $color = $row["color"];
+                    $version = $row["version"];
+                    $quantity = $row["quantity"];
+                    $query = "INSERT INTO order_products (order_id, product_id, color, version, quantity) VALUES ($lastId, $productId, '$color', '$version', $quantity);";
+                    $result = sqlsrv_query($conn,$query);
+                    }
+
+
+                    sqlsrv_query($conn, $query);
                     header("Location: receipt.php?orderId=$lastId");
-                }
-            } else {
-                header("Location: fix_order.php?insufficient=1");
-            }
+                    }
+                    } else {
+                header("Location: fix_order.php?userId=$userId&insufficient=1");
+               }
         }
     }
 ?>

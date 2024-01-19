@@ -186,6 +186,7 @@
             $query = "INSERT INTO orders (user_id,pref_contact, card_type, nameoncard, card_number, expiry, cvv, order_cost, order_time,order_items,town,street,state,post_code) VALUES 
                                           ($userId,'$prefContact','$cardType','$nameOnCard','$cardNumber','$expiry','$cvv',$total_cprice, GETDATE(), $total_item,'$town','$street','$state','$postCode');";
             $result = sqlsrv_query($conn,$query) ;
+
             if ($result === false) {
                 die(print_r(sqlsrv_errors(), true)); // Handle query execution error
             }
@@ -197,22 +198,40 @@
                 $row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
                 if ($row)  $lastId = $row['order_id']; 
             }
-    
-               $query = "SELECT * FROM cart WHERE user_id = $userId;";
-               $result = sqlsrv_query($conn,$query);
-               while($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) {
-                     $productId = $row["product_id"];
-                     $color = $row["color"];
-                     $version = $row["version"];
-                     $quantity = $row["quantity"];
-                     $query = "INSERT INTO order_products (order_id, product_id, color, version, quantity) VALUES ($lastId, $productId, '$color', '$version', $quantity);";
-                     $result = sqlsrv_query($conn,$query);
-                }
 
-               $query = "DELETE FROM cart WHERE user_id = $userId;";
-               echo $query;
-               sqlsrv_query($conn, $query);
-               header("Location: receipt.php?orderId=$lastId");
+
+            $query = "SELECT TOP 1 order_id as order_id FROM orders WHERE user_id = $userId ORDER BY order_time DESC;";
+            $result = sqlsrv_query($conn, $query);
+            $lastId = 0;
+            
+            if ($result !== false) {
+                $row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+                if ($row) {
+                    $lastId = $row['order_id'];
+                }
+            }
+            
+            $query = "SELECT * FROM cart WHERE user_id = $userId;";
+            $resultCart = sqlsrv_query($conn, $query); // Use a different variable for the inner result set
+            
+            while ($row = sqlsrv_fetch_array($resultCart, SQLSRV_FETCH_ASSOC)) {
+                $queryChe = "INSERT INTO che VALUES ($count, GETDATE());";
+                $resultChe = sqlsrv_query($conn, $queryChe); // Use a different variable for the inner result set
+            
+                $productId = $row["product_id"];
+                $color = $row["color"];
+                $version = $row["version"];
+                $quantity = $row["quantity"];
+            
+                $queryOrderProducts = "INSERT INTO order_products (order_id, product_id, color, version, quantity) VALUES ($lastId, $productId, '$color', '$version', $quantity);";
+                $resultOrderProducts = sqlsrv_query($conn, $queryOrderProducts); // Use a different variable for the inner result set
+            }
+            
+            $queryDeleteCart = "DELETE FROM cart WHERE user_id = $userId;";
+            sqlsrv_query($conn, $queryDeleteCart);
+            
+            header("Location: receipt.php?orderId=$lastId");
+            
          }
        } else {
         header("Location: fix_order.php?userId=$userId&insufficient=1");

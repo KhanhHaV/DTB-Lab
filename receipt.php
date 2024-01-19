@@ -34,9 +34,7 @@
                 echo "<p>Sth went wrong</p>";
             } else {
                 $orderId = $_GET["orderId"];
-                
-                $test = "INSERT INTO che (num,tim) VALUES ($orderId, GETDATE());" ;
-                $result = sqlsrv_query($conn,$test) ;
+            
                 
                /* $query = "SELECT order_id,user_id, order_status, order_cost, order_time, 
                             card_type, street, town, state, 

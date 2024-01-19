@@ -1,5 +1,5 @@
 <?php
-    function galleryItem($rowLast, $id, $name, $desc, $price,$image,$imageType) {
+    function galleryItem($rowLast, $id, $name, $desc, $price,$image,$imageType,$discount) {
         
         echo "
         <li>
@@ -12,7 +12,30 @@
                     </div>
                     <div class='brief-info'>
                         <h3>$name</h3>
-                        <p class='product-price'>$$price</p>
+                            ";
+                            if ($discount!=0){
+                                echo"
+                            <div style='position: relative;width: fit-content; display: flex; align-items: center;'>
+                                <p class='product-price'>
+                                    $$price
+                                </p>
+                                <hr style='position: absolute;width: 100%;color: white;z-index: 1'>
+                            </div>
+                            <div style='position: relative;width: fit-content; display: flex; align-items: center;'>
+                                <p class='product-price after-disc'>
+                                    $$price
+                                </p>
+                            </div>";}
+                            else {
+                                echo"
+                                    <p class='product-price'>
+                                        $$price
+                                    </p>
+                                    
+                              ";
+                            }
+                            
+                            echo"
                     </div>
                 </div>
                 <aside class='additional-info ";

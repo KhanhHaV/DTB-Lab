@@ -97,10 +97,10 @@
                                 $fea3 = $_GET["fea3"];
                             }
                             $query = "SELECT * FROM products WHERE product_id = $product";
-                            $result = mysqli_query($conn, $query);
+                            $result = sqlsrv_query($conn, $query);
                             $cart_array = [];
                             $itemCount = 0;
-                            $cart = mysqli_fetch_assoc($result);
+                            $cart = sqlsrv_fetch_assoc($result);
                             array_push($cart_array, $cart);
                             $itemCount += $quantity;
                             echo "

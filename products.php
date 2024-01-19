@@ -155,7 +155,7 @@
                                             $pageIndex += 1;
                                         }
                                         galleryItem($rowLast, $row["product_id"],$row["pname"],$row["pdesc"],
-                                                    $row["pprice"],$row["pimage"],$row["pimagetype"]);
+                                                    $row["pprice"],$row["pimage"],$row["pimagetype"],$row["discount"]);
 
                                       
                                         if($rowIndex % 9 == 0) {
